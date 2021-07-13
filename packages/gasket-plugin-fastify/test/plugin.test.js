@@ -88,6 +88,25 @@ describe('createServers', () => {
     assume(fastify).has.been.calledWith({ logger: gasket.logger });
   });
 
+  it('passes constructor params to fastify from config', async function () {
+    const querystringParser = sinon.stub();
+    await plugin.hooks.createServers({
+      ...gasket,
+      config: {
+        fastify: {
+          excludedRoutesRegex: /.*/,
+          compression: true,
+          querystringParser
+        }
+      }
+    }, {});
+
+    assume(fastify).has.been.calledWith({
+      logger: gasket.logger,
+      querystringParser
+    });
+  });
+
   it('executes the `middleware` lifecycle', async function () {
     await plugin.hooks.createServers(gasket, {});
     assume(gasket.exec).has.been.calledWith('middleware', app);
